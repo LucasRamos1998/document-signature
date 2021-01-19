@@ -2,9 +2,13 @@ import { badRequest } from '../../helpers/http-helper'
 import { MissingParamError } from '../../errors/missing-param-error'
 import { SignupController } from './signup-controller'
 
+const makeSut = (): SignupController => {
+  return new SignupController()
+}
+
 describe('Signup Controller', () => {
   test('Should return 400 if name is not provided', async () => {
-    const sut = new SignupController()
+    const sut = makeSut()
     const httpResponse = await sut.handle({
       body: {
         cpf: 'any_cpf',
@@ -17,7 +21,7 @@ describe('Signup Controller', () => {
   })
 
   test('Should return 400 if cpf is not provided', async () => {
-    const sut = new SignupController()
+    const sut = makeSut()
     const httpResponse = await sut.handle({
       body: {
         name: 'any_name',
@@ -30,7 +34,7 @@ describe('Signup Controller', () => {
   })
 
   test('Should return 400 if email is not provided', async () => {
-    const sut = new SignupController()
+    const sut = makeSut()
     const httpResponse = await sut.handle({
       body: {
         name: 'any_name',
@@ -43,7 +47,7 @@ describe('Signup Controller', () => {
   })
 
   test('Should return 400 if password is not provided', async () => {
-    const sut = new SignupController()
+    const sut = makeSut()
     const httpResponse = await sut.handle({
       body: {
         name: 'any_name',
@@ -56,7 +60,7 @@ describe('Signup Controller', () => {
   })
 
   test('Should return 400 if password is not provided', async () => {
-    const sut = new SignupController()
+    const sut = makeSut()
     const httpResponse = await sut.handle({
       body: {
         name: 'any_name',
