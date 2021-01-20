@@ -4,7 +4,7 @@ import { SignupController } from './signup-controller'
 import { AddAccount, AddAccountParams } from '../../../domain/usecases/add-account'
 import { AccountModel } from '../../../domain/models/account'
 import { EmailInUseError } from '../../errors/email-in-use-error'
-// import { CompareFieldsError } from '../../errors/compare-fields-error'
+import { CompareFieldsError } from '../../errors/compare-fields-error'
 import { EmailValidator, HttpRequest } from '../../protocols'
 
 const makeAddAccount = (): AddAccount => {
@@ -149,5 +149,20 @@ describe('Signup Controller', () => {
     const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid')
     await sut.handle(makeFakeRequest())
     expect(isValidSpy).toHaveBeenCalledWith('any_email@mail.com')
+  })
+
+  test('Should return 400 if passwordConfirmation if not equal to password', async () => {
+    const { sut } = makeSut()
+    const httpResponse = await sut.handle({
+      body: {
+        name: 'any_name',
+        password: 'any_password',
+        passwordConfirmation: 'wrong_password',
+        cpf: 'any_cpf',
+        email: 'any_email@mail.com'
+      }
+    })
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(new CompareFieldsError('password', 'passwordConfirmation'))
   })
 })
