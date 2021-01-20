@@ -1,4 +1,4 @@
-import { badRequest } from '../../helpers/http-helper'
+import { badRequest, serverError } from '../../helpers/http-helper'
 import { MissingParamError } from '../../errors/missing-param-error'
 import { SignupController } from './signup-controller'
 import { AddAccount, AddAccountParams } from '../../../domain/usecases/add-account'
@@ -164,5 +164,14 @@ describe('Signup Controller', () => {
     })
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new CompareFieldsError('password', 'passwordConfirmation'))
+  })
+
+  test('Should return 500 if addAccount throws', async () => {
+    const { sut, addAccountStub } = makeSut()
+    jest.spyOn(addAccountStub, 'add').mockImplementationOnce(async () => {
+      return await Promise.reject(new Error())
+    })
+    const httpResponse = await sut.handle(makeFakeRequest())
+    expect(httpResponse).toEqual(serverError())
   })
 })
