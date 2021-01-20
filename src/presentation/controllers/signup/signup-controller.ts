@@ -1,4 +1,5 @@
 import { AddAccount } from '../../../domain/usecases/add-account'
+import { CompareFieldsError } from '../../errors/compare-fields-error'
 import { EmailInUseError } from '../../errors/email-in-use-error'
 import { MissingParamError } from '../../errors/missing-param-error'
 import { badRequest } from '../../helpers/http-helper'
@@ -15,11 +16,12 @@ export class SignupController implements Controller {
     for (const field of requiredFields) {
       if (!httpRequest.body[field]) return badRequest(new MissingParamError(field))
     }
-    const { name, cpf, email, password } = httpRequest.body
+    const { name, cpf, email, password, passwordConfirmation } = httpRequest.body
 
     const isValid = this.emailValidator.isValid(email)
 
     if (!isValid) return badRequest(new EmailInUseError())
+    if (password !== passwordConfirmation) return badRequest(new CompareFieldsError('password', 'passwordConfirmation'))
 
     await this.addAccount.add({
       name,
