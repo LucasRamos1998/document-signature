@@ -2,7 +2,7 @@ import { AddAccount } from '../../../domain/usecases/add-account'
 import { CompareFieldsError } from '../../errors/compare-fields-error'
 import { EmailInUseError } from '../../errors/email-in-use-error'
 import { MissingParamError } from '../../errors/missing-param-error'
-import { badRequest, serverError } from '../../helpers/http-helper'
+import { badRequest, ok, serverError } from '../../helpers/http-helper'
 import { Controller, EmailValidator, HttpRequest, HttpResponse } from '../../protocols'
 
 export class SignupController implements Controller {
@@ -24,13 +24,13 @@ export class SignupController implements Controller {
       if (!isValid) return badRequest(new EmailInUseError())
       if (password !== passwordConfirmation) return badRequest(new CompareFieldsError('password', 'passwordConfirmation'))
 
-      await this.addAccount.add({
+      const newAccount = await this.addAccount.add({
         name,
         cpf,
         email,
         password
       })
-      return null
+      return ok(newAccount)
     } catch (err) {
       return serverError()
     }
