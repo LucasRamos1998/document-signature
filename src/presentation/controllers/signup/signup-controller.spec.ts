@@ -4,6 +4,7 @@ import { SignupController } from './signup-controller'
 import { AddAccount, AddAccountParams } from '../../../domain/usecases/add-account'
 import { AccountModel } from '../../../domain/models/account'
 import { EmailInUseError } from '../../errors/email-in-use-error'
+// import { CompareFieldsError } from '../../errors/compare-fields-error'
 import { EmailValidator, HttpRequest } from '../../protocols'
 
 const makeAddAccount = (): AddAccount => {
@@ -141,5 +142,12 @@ describe('Signup Controller', () => {
       cpf: 'any_cpf',
       email: 'any_email@mail.com'
     })
+  })
+
+  test('Should call EmailValidatior with correct email', async () => {
+    const { sut, emailValidatorStub } = makeSut()
+    const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid')
+    await sut.handle(makeFakeRequest())
+    expect(isValidSpy).toHaveBeenCalledWith('any_email@mail.com')
   })
 })
