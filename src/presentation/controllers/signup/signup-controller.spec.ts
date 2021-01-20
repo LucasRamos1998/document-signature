@@ -1,4 +1,4 @@
-import { badRequest, serverError } from '../../helpers/http-helper'
+import { badRequest, serverError, ok } from '../../helpers/http-helper'
 import { MissingParamError } from '../../errors/missing-param-error'
 import { SignupController } from './signup-controller'
 import { AddAccount, AddAccountParams } from '../../../domain/usecases/add-account'
@@ -11,7 +11,7 @@ const makeAddAccount = (): AddAccount => {
   class AddAccountStub implements AddAccount {
     async add (accountParams: AddAccountParams): Promise<AccountModel> {
       return await new Promise(resolve => resolve({
-        id: 'any_id',
+        id: 'valid_id',
         name: 'any_name',
         password: 'any_password',
         cpf: 'any_cpf',
@@ -182,5 +182,17 @@ describe('Signup Controller', () => {
     })
     const httpResponse = await sut.handle(makeFakeRequest())
     expect(httpResponse).toEqual(serverError())
+  })
+
+  test('Should return 200 on success', async () => {
+    const { sut } = makeSut()
+    const httpResponse = await sut.handle(makeFakeRequest())
+    expect(httpResponse).toEqual(ok({
+      id: 'valid_id',
+      name: 'any_name',
+      cpf: 'any_cpf',
+      email: 'any_email@mail.com',
+      password: 'any_password'
+    }))
   })
 })
