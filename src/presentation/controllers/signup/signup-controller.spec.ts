@@ -4,7 +4,7 @@ import { SignupController } from './signup-controller'
 import { AddAccount, AddAccountParams } from '../../../domain/usecases/add-account'
 import { AccountModel } from '../../../domain/models/account'
 import { EmailInUseError } from '../../errors/email-in-use-error'
-import { EmailValidator } from '../../protocols'
+import { EmailValidator, HttpRequest } from '../../protocols'
 
 const makeAddAccount = (): AddAccount => {
   class AddAccountStub implements AddAccount {
@@ -29,6 +29,16 @@ const makeEmailValidator = (): EmailValidator => {
   }
   return new EmailValidator()
 }
+
+const makeFakeRequest = (): HttpRequest => ({
+  body: {
+    name: 'any_name',
+    password: 'any_password',
+    passwordConfirmation: 'any_password',
+    cpf: 'any_cpf',
+    email: 'any_email@mail.com'
+  }
+})
 
 interface sutTypes {
   sut: SignupController
@@ -116,32 +126,15 @@ describe('Signup Controller', () => {
   test('Should return 400 if an invalid email is provided', async () => {
     const { sut, emailValidatorStub } = makeSut()
     jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
-    const httpResponse = await sut.handle({
-      body: {
-        name: 'any_name',
-        password: 'any_password',
-        passwordConfirmation: 'any_password',
-        cpf: 'any_cpf',
-        email: 'invalid_email@mail.com'
-      }
-    })
+    const httpResponse = await sut.handle(makeFakeRequest())
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new EmailInUseError())
   })
 
   test('Should call add with correct values', async () => {
     const { sut, addAccountStub } = makeSut()
-
     const addSpy = jest.spyOn(addAccountStub, 'add')
-    await sut.handle({
-      body: {
-        name: 'any_name',
-        password: 'any_password',
-        passwordConfirmation: 'any_password',
-        cpf: 'any_cpf',
-        email: 'any_email@mail.com'
-      }
-    })
+    await sut.handle(makeFakeRequest())
     expect(addSpy).toHaveBeenCalledWith({
       name: 'any_name',
       password: 'any_password',
