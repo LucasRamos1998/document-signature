@@ -24,10 +24,10 @@ const makeAddAccountRepository = (): AddAccountRepository => {
     async add (accountData: AddAccountParams): Promise<AccountModel> {
       return await Promise.resolve({
         id: 'any_id',
-        name: 'any_name',
-        password: 'hashed_password',
-        cpf: 'any_cpf',
-        email: 'any_email@mail.com'
+        name: 'valid_name',
+        cpf: 'valid_cpf',
+        email: 'valid_email@mail.com',
+        password: 'hashed_password'
       })
     }
   }
@@ -83,5 +83,17 @@ describe('DbAddAccount usecase', () => {
     jest.spyOn(addAccountRepositoryStub, 'add').mockReturnValueOnce(Promise.reject(new Error()))
     const promise = sut.add(makeFakeAccountData())
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should return an account on success', async () => {
+    const { sut } = makeSut()
+    const account = await sut.add(makeFakeAccountData())
+    expect(account).toEqual({
+      id: 'any_id',
+      name: 'valid_name',
+      cpf: 'valid_cpf',
+      email: 'valid_email@mail.com',
+      password: 'hashed_password'
+    })
   })
 })
