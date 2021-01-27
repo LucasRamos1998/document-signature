@@ -1,5 +1,5 @@
 import { DbAddAccount } from './db-add-account'
-import { AddAccountParams, AddAccountRepository } from './db-add-account-protocols'
+import { AddAccountParams, AddAccountRepository, LoadAccountByParamsRepository } from './db-add-account-protocols'
 import { Hasher } from '../../protocols/cryptography/Hasher'
 import { AccountModel } from '../../../domain/models/account'
 
@@ -34,20 +34,32 @@ const makeAddAccountRepository = (): AddAccountRepository => {
   return new AddAccountRepositoryStub()
 }
 
+const makeLoadAccountByParamsRepository = (): LoadAccountByParamsRepository => {
+  class LoadAccountByParamsRepositoryStub implements LoadAccountByParamsRepository {
+    async load (params: {}): Promise<AccountModel> {
+      return await new Promise(resolve => resolve(null))
+    }
+  }
+  return new LoadAccountByParamsRepositoryStub()
+}
+
 interface sutTypes {
   sut: DbAddAccount
   hasherStub: Hasher
   addAccountRepositoryStub: AddAccountRepository
+  loadAccountByParamsRepositoryStub: LoadAccountByParamsRepository
 }
 
 const makeSut = (): sutTypes => {
   const hasherStub = makeHasher()
   const addAccountRepositoryStub = makeAddAccountRepository()
-  const sut = new DbAddAccount(hasherStub, addAccountRepositoryStub)
+  const loadAccountByParamsRepositoryStub = makeLoadAccountByParamsRepository()
+  const sut = new DbAddAccount(hasherStub, addAccountRepositoryStub, loadAccountByParamsRepositoryStub)
   return {
     sut,
     hasherStub,
-    addAccountRepositoryStub
+    addAccountRepositoryStub,
+    loadAccountByParamsRepositoryStub
   }
 }
 
@@ -95,5 +107,18 @@ describe('DbAddAccount usecase', () => {
       email: 'valid_email@mail.com',
       password: 'hashed_password'
     })
+  })
+
+  test('Should return null if LoadAccountByParams does not return null', async () => {
+    const { sut, loadAccountByParamsRepositoryStub } = makeSut()
+    jest.spyOn(loadAccountByParamsRepositoryStub, 'load').mockReturnValueOnce(new Promise(resolve => resolve({
+      id: 'any_id',
+      name: 'valid_name',
+      cpf: 'valid_cpf',
+      email: 'valid_email@mail.com',
+      password: 'hashed_password'
+    })))
+    const account = await sut.add(makeFakeAccountData())
+    expect(account).toBeNull()
   })
 })
