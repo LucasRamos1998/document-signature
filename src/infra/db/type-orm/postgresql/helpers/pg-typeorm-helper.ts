@@ -1,6 +1,6 @@
 import { newDb } from 'pg-mem'
 import { Connection } from 'typeorm'
-import typeOrmConfig from '../../../../../../ormconfig'
+import { Account } from '../../entities/Account'
 
 const connection = {
   test: {
@@ -8,7 +8,11 @@ const connection = {
 
     async create () {
       const db = newDb()
-      this.client = await db.adapters.createTypeormConnection(typeOrmConfig)
+      this.client = await db.adapters.createTypeormConnection({
+        type: 'postgres',
+        entities: [Account]
+      })
+      await this.client.synchronize()
     },
 
     async close () {
@@ -16,8 +20,7 @@ const connection = {
     },
 
     async clear () {
-      const entities = this.client.entityMetadata
-
+      const entities = this.client.entityMetadatas
       entities.forEach(async (entity) => {
         const repository = this.client.getRepository(entity.name)
         await repository.query(`DELETE FROM ${entity.tableName}`)
@@ -27,4 +30,4 @@ const connection = {
 
 }
 
-export default connection
+export default connection.test

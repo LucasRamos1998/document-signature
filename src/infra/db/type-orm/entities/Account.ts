@@ -1,19 +1,19 @@
 import { BaseEntity, Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
 
 @Entity()
-export class User extends BaseEntity {
+export class Account extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column({ type: 'text', length: 50 })
+  @Column({ type: 'text' })
   name: string
 
-  @Column({ type: 'text', length: 11, unique: true })
+  @Column({ type: 'text'})
   cpf: string
 
-  @Column({ type: 'text', length: 50, unique: true })
+  @Column({ type: 'text'})
   email: string
 
-  @Column({ type: 'text', length: 30 })
+  @Column({ type: 'text'})
   password: string
 }
