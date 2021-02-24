@@ -8,12 +8,12 @@ export class Account extends BaseEntity {
   @Column({ type: 'text' })
   name: string
 
-  @Column({ type: 'text'})
+  @Column({ type: 'text' })
   cpf: string
 
-  @Column({ type: 'text'})
+  @Column({ type: 'text' })
   email: string
 
-  @Column({ type: 'text'})
+  @Column({ type: 'text' })
   password: string
 }
