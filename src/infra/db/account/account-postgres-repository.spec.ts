@@ -59,5 +59,17 @@ describe('Account Postgres Repository', () => {
       const account = await sut.load({ cpf: 'any_cpf', email: 'other_email@mail.com' })
       expect(account).toBeTruthy()
     })
+
+    test('should return null if cpf and email not exist', async () => {
+      const sut = makeSut()
+      await sut.add({
+        name: 'any_name',
+        cpf: 'any_cpf',
+        email: 'any_email@mail.com',
+        password: 'any_password'
+      })
+      const account = await sut.load({ cpf: 'other_cpf', email: 'other_email@mail.com' })
+      expect(account).toBe(null)
+    })
   })
 })
