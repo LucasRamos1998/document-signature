@@ -16,9 +16,9 @@ export class AccountPostgresRepository implements AddAccountRepository, LoadAcco
   async load (params: LoadAccountByEmailOrCpfParams): Promise<AccountModel> {
     const { cpf, email } = params
     const accountRepository = await PgHelper.getRepository(Account)
-    const account = await accountRepository.find({
+    const account = await accountRepository.findOne({
       where: [{ cpf }, { email }]
     })
-    return account.length ? account[0] : null
+    return account || null
   }
 }
