@@ -2,6 +2,7 @@ import { AddAccount } from '../../../domain/usecases/add-account'
 import { CompareFieldsError } from '../../errors/compare-fields-error'
 import { EmailInUseError } from '../../errors/email-in-use-error'
 import { MissingParamError } from '../../errors/missing-param-error'
+import { UserAlreadyExists } from '../../errors/user-already-exists'
 import { badRequest, ok, serverError } from '../../helpers/http-helper'
 import { Controller, EmailValidator, HttpRequest, HttpResponse } from '../../protocols'
 
@@ -30,6 +31,8 @@ export class SignupController implements Controller {
         email,
         password
       })
+      if (!newAccount) return badRequest(new UserAlreadyExists())
+
       return ok(newAccount)
     } catch (err) {
       return serverError()
